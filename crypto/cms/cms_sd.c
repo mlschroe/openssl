@@ -251,6 +251,13 @@ static int cms_generic_sign(CMS_SignerInfo *si, int verify)
         hnid = OBJ_obj2nid(alg1->algorithm);
         if (hnid == NID_undef)
             return -1;
+{
+    char md_name[OSSL_MAX_NAME_SIZE];
+    if (OBJ_obj2txt(md_name, sizeof(md_name),
+                    alg1->algorithm, 0) <= 0)
+        return 0;
+    fprintf(stderr, "YYY: %s\n", md_name);
+}
         if (pknid <= 0) { /* check whether a provider registered a NID */
             const char *typename = EVP_PKEY_get0_type_name(pkey);
 
@@ -401,11 +408,13 @@ CMS_SignerInfo *CMS_add1_signer(CMS_ContentInfo *cms,
     if (md == NULL) {
         int def_nid;
 
+        fprintf(stderr, "ZZZ: md is zero\n");
         if (EVP_PKEY_get_default_digest_nid(pk, &def_nid) <= 0) {
             ERR_raise_data(ERR_LIB_CMS, CMS_R_NO_DEFAULT_DIGEST,
                            "pkey nid=%d", EVP_PKEY_get_id(pk));
             goto err;
         }
+        fprintf(stderr, "ZZZ: md has nid %d\n", def_nid);
         md = EVP_get_digestbynid(def_nid);
         if (md == NULL) {
             ERR_raise_data(ERR_LIB_CMS, CMS_R_NO_DEFAULT_DIGEST,
@@ -413,6 +422,11 @@ CMS_SignerInfo *CMS_add1_signer(CMS_ContentInfo *cms,
             goto err;
         }
     }
+{
+    char md_name[OSSL_MAX_NAME_SIZE];
+    if (OBJ_obj2txt(md_name, sizeof(md_name), OBJ_nid2obj(EVP_MD_get_type(md)), 0))
+      fprintf(stderr, "ZZZ: %s\n", md_name);
+}
 
     X509_ALGOR_set_md(si->digestAlgorithm, md);
 

@@ -125,7 +125,7 @@ jobs:
         ./apps/openssl.exe version -c
     - name: test
       working-directory: _build
-      run: nmake test VERBOSE_FAILURE=yes HARNESS_JOBS=4
+      run: nmake test VERBOSE_FAILURE=yes HARNESS_JOBS=4 TESTS=80-test_cms
   minimal:
     strategy:
       matrix:
