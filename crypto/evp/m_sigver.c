@@ -242,6 +242,7 @@ static int do_sigver_init(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx,
                 /* legacy engine support : remove the mark when this is deleted */
                 ctx->reqdigest = ctx->digest = EVP_get_digestbyname(mdname);
                 if (ctx->digest == NULL) {
+		    fprintf(stderr, "XXX mdname %s\n", mdname);
                     (void)ERR_clear_last_mark();
                     ERR_raise(ERR_LIB_EVP, EVP_R_INITIALIZATION_ERROR);
                     goto err;

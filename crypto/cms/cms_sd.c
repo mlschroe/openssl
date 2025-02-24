@@ -862,8 +862,10 @@ int CMS_SignerInfo_sign(CMS_SignerInfo *si)
     if (OBJ_obj2txt(md_name, sizeof(md_name),
                     si->digestAlgorithm->algorithm, 0) <= 0)
         return 0;
-    if (!EVP_PKEY_is_a(si->pkey, "RSA") && cms_signature_nomd(si->pkey))
+    fprintf(stderr, "MD is %s\n", md_name);
+    if (cms_signature_nomd(si->pkey))
         md_name = NULL;
+    fprintf(stderr, "MD now is %s\n", md_name ? md_name : "NULL");
 
     if (!si->omit_signing_time
         && CMS_signed_get_attr_by_NID(si, NID_pkcs9_signingTime, -1) < 0) {
@@ -878,11 +880,13 @@ int CMS_SignerInfo_sign(CMS_SignerInfo *si)
         pctx = si->pctx;
     } else {
         EVP_MD_CTX_reset(mctx);
+        fprintf(stderr, "MD now2 is %s\n", md_name ? md_name : "NULL");
         if (EVP_DigestSignInit_ex(mctx, &pctx, md_name,
                                   ossl_cms_ctx_get0_libctx(ctx),
                                   ossl_cms_ctx_get0_propq(ctx), si->pkey,
                                   NULL) <= 0)
             goto err;
+        fprintf(stderr, "MD now3 is %s\n", md_name ? md_name : "NULL");
         EVP_MD_CTX_set_flags(mctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX);
         si->pctx = pctx;
     }
